@@ -96,6 +96,9 @@ if __name__ == "__main__":
     out = predict_fixtures(hist, fixtures, a.model, use_h2h=not a.no_h2h)
     out.to_csv(OUT / "predictions.csv", index=False)
     print(out.round(3).to_string(index=False))
+    from .track import update_log
+    log = update_log(out, hist)
+    print(f"\nprediction log: {len(log)} matches, {int(log.result.notna().sum())} with real results")
     if a.totals:
         tot = predict_totals(hist, fixtures, use_h2h=not a.no_h2h)
         tot.to_csv(OUT / "totals_predictions.csv", index=False)

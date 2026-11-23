@@ -81,3 +81,20 @@ def test_external_csv_merge_with_aliases_and_column_map(tmp_path=None):
     assert h2.loc[(h2.Date == last.Date) & (h2.HomeTeam == last.HomeTeam) & (h2.AwayTeam == last.AwayTeam), "FTHG"].iloc[0] == last.FTHG
     assert h2.FTR.isin(["H", "D", "A"]).all()
     assert np.isfinite(run(h2)["model_logloss"])  # merged data flows through the pipeline
+
+
+def test_prediction_log_keeps_first_and_attaches_results():
+    import os, tempfile
+    from src.track import update_log
+    hist, _ = generate(seasons=3)
+    train, hold = hist.iloc[:-20], hist.tail(20)
+    fx = hold[["Date", "League", "HomeTeam", "AwayTeam", "OddsH", "OddsD", "OddsA"]].reset_index(drop=True)
+    preds = predict_fixtures(train, fx)
+    path = os.path.join(tempfile.mkdtemp(), "log.csv")
+    day = hold.Date.min()
+    log1 = update_log(preds, train, path, today=day)
+    assert len(log1) > 0 and log1.result.isna().all()            # nothing played yet
+    again = preds.copy(); again["p_home"] = 0.99
+    log2 = update_log(again, hist, path, today=day + pd.Timedelta(days=1))
+    assert len(log2) == len(log1) and (log2.p_home != 0.99).all()  # first prediction is kept
+    assert log2.result.notna().sum() >= 15                       # real results attached

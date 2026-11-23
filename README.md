@@ -50,3 +50,16 @@ python -m src.backtest --extra-results futbol24_results.csv --aliases data/team_
 - Check Futbol24's terms before any automated access.
 
 The Streamlit sidebar also has buttons that open Futbol24's live scores and team-compare pages for cross-checking.
+
+## GitHub Pages (a live web page)
+`docs/index.html` shows the predictions in a phone-friendly page. In your repo go to
+**Settings → Pages → Build and deployment → Deploy from a branch → `main` / `/docs` → Save**.
+The page appears at `https://YOUR_USERNAME.github.io/match-predictor/` and updates whenever the daily
+workflow commits new CSVs. Until the first run it shows clearly labelled demo data.
+(Free GitHub accounts need a public repo for Pages.)
+
+## Track record (actual results vs predictions)
+Every run appends new predictions to `docs/prediction_log.csv` (the first prediction for a match is kept,
+so it can't be rewritten after the game). When the real result appears in the data, it is attached to that row.
+The page's **Track record** tab shows each match with the real score, ✓/✗, accuracy, log loss and value-flag profit.
+Judge the model only after hundreds of finished matches, and compare log loss with the bookmaker backtest.
